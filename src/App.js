@@ -1,4 +1,6 @@
+import { Button } from '@material-ui/core';
 import React from 'react';
+
 
 const getMedia = async() => {
   const constraints = {audio: true, video: true}
@@ -15,7 +17,7 @@ const getMedia = async() => {
 getMedia()
 
 const  App = () => {
-  return <div>Hello, React!</div>;
+  return <Button color="primary" variant="outlined">HelloWorld</Button>;
 }
 
 export default App;
