@@ -1,6 +1,6 @@
-import { Button } from '@material-ui/core';
 import React from 'react';
-
+import InputFormLocal from './InputFormLocal'
+import InputFormRemote from './InputFormRemote'
 
 const getMedia = async() => {
   const constraints = {audio: true, video: true}
@@ -17,7 +17,10 @@ const getMedia = async() => {
 getMedia()
 
 const  App = () => {
-  return <Button color="primary" variant="outlined">HelloWorld</Button>;
+  return <>
+  <InputFormLocal />
+  <InputFormRemote />
+  </>;
 }
 
 export default App;
