@@ -1,34 +1,40 @@
-import React, { useState } from 'react';
-import InputFormLocal from './InputFormLocal'
-import InputFormRemote from './InputFormRemote'
-
-const getMedia = async() => {
-  const constraints = {audio: true, video: true}
+import React, { useState } from "react";
+import InputFormLocal from "./InputFormLocal";
+import InputFormRemote from "./InputFormRemote";
+import VideoArea from "./VideoArea";
+const getMedia = async () => {
+  const constraints = { audio: true, video: true };
 
   try {
     return await navigator.mediaDevices.getUserMedia(constraints);
     /* ストリームを使用 */
-  } catch(err) {
+  } catch (err) {
     /* エラーを処理 */
-    console.log(err)
+    console.log(err);
   }
-}
+};
 
-getMedia()
+getMedia();
 
-const  App = () => {
-  const [localPeerName, setLocalPeerName] = useState('');
-  const [remotePeerName, setRemotePeerName] = useState('');
-  return( <>
-  <InputFormLocal
-    localPeerName={localPeerName}
-    setLocalPeerName={setLocalPeerName}
-  />
-  <InputFormRemote
-    remotePeerName={remotePeerName}
-    setRemotePeerName={setRemotePeerName}
-  />
-  </>);
-}
+const App = () => {
+  const [localPeerName, setLocalPeerName] = useState("");
+  const [remotePeerName, setRemotePeerName] = useState("");
+  return (
+    <>
+      <InputFormLocal
+        localPeerName={localPeerName}
+        setLocalPeerName={setLocalPeerName}
+      />
+      <InputFormRemote
+        remotePeerName={remotePeerName}
+        setRemotePeerName={setRemotePeerName}
+      />
+      <VideoArea
+        remotePeerName={remotePeerName}
+        setRemotePeerName={setRemotePeerName}
+      />
+    </>
+  );
+};
 
 export default App;
