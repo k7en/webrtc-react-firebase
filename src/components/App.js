@@ -30,6 +30,8 @@ const App = () => {
         setRemotePeerName={setRemotePeerName}
       />
       <VideoArea
+        localPeerName={localPeerName}
+        setLocalPeerName={setLocalPeerName}
         remotePeerName={remotePeerName}
         setRemotePeerName={setRemotePeerName}
       />
