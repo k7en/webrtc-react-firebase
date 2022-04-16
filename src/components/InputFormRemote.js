@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 
 const theme = createTheme();
 
-export default function SignIn({ rtcClient }) {
+export default function SignIn({ rtcClient, setRtcClient }) {
   const label = "相手の名前";
   const classes = useStyles();
   const [disabeld, setDisabled] = useState(true);
@@ -72,10 +72,11 @@ export default function SignIn({ rtcClient }) {
 
   const initializeRemotePeer = useCallback(
     (e) => {
-      e.preventDefault();
       rtcClient.remotePeerName = name;
+      setRtcClient(rtcClient);
+      e.preventDefault();
     },
-    [name, rtcClient]
+    [setRtcClient, name, rtcClient]
   );
 
   if (rtcClient.localPeerName === "") return <></>;
