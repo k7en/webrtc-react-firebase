@@ -28,7 +28,7 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignIn({ rtcClient, setRtcClient }) {
+export default function SignIn({ rtcClient }) {
   const label = "あなたの名前";
   const [disabeld, setDisabled] = useState(true);
   const [name, setName] = useState("");
@@ -42,10 +42,10 @@ export default function SignIn({ rtcClient, setRtcClient }) {
   const initializeLocalPeer = useCallback(
     (e) => {
       rtcClient.localPeerName = name;
-      setRtcClient(rtcClient);
+      rtcClient.setRtcClient(rtcClient);
       e.preventDefault();
     },
-    [setRtcClient, name, rtcClient]
+    [name, rtcClient]
   );
 
   const handleSubmit = (event) => {
@@ -58,6 +58,7 @@ export default function SignIn({ rtcClient, setRtcClient }) {
   };
 
   if (rtcClient.localPeerName !== "") return <></>;
+
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
