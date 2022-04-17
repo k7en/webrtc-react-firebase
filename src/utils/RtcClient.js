@@ -1,4 +1,3 @@
-import { ConstructionOutlined, ThirtyFpsSelect } from "@mui/icons-material";
 import FirebaseSignalingClient from "./FirebaseSignalingClient";
 
 export default class RtcClient {
@@ -54,11 +53,11 @@ export default class RtcClient {
   }
 
   async offer() {
-    const sessionDescription = await this.createOfffer();
+    const sessionDescription = await this.createOffer();
     await this.setLocalDesription(sessionDescription);
     await this.sendOffer();
   }
-  async createOfffer() {
+  async createOffer() {
     try {
       return await this.rtcPeerConnection.createOffer();
     } catch (e) {
@@ -91,6 +90,20 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
+  async answer(sender, sessionDescription) {
+    try {
+      this.remotePeerName = sender;
+      this.setOnicecandidateCallback();
+      this.setOntrack();
+      await this.setRemoteDescription(sessionDescription);
+      const answer = await this.rtcPeerConnection.createAnswer();
+      this.rtcPeerConnection.setLocalDescription(answer);
+      await this.sendAnswer();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async connect(remotePeerName) {
     console.log({ remotePeerName });
     this.remotePeerName = remotePeerName;
@@ -98,6 +111,19 @@ export default class RtcClient {
     this.setOntrack();
     await this.offer();
     this.setRtcClient();
+  }
+
+  async setRemoteDescription(sessionDescription) {
+    await this.rtcPeerConnection.setRemoteDescription(sessionDescription);
+  }
+
+  async sendAnswer() {
+    this.FirebaseSignalingClient.setPeerNames(
+      this.localPeerName,
+      this.remotePeerName
+    );
+    
+    await this.FirebaseSignalingClient.sendAnswer(this.localDescription);
   }
 
   get localDescription() {
@@ -116,8 +142,20 @@ export default class RtcClient {
     // ここでシグナリングサーバーをListenする。https://firebase.google.com/docs/database/web/read-and-write?hl=ja#web_value_events
     this.FirebaseSignalingClient.database
       .ref(localPeerName)
-      .on("value", (snapshot) => {
+      .on("value", async (snapshot) => {
         const data = snapshot.val();
+        console.log({ data });
+        if (data === null) {
+          return;
+        }
+        const { sender, sessionDescription, type } = data;
+        switch (type) {
+          case "offer":
+            await this.answer(sender, sessionDescription);
+            break;
+          default:
+            break;
+        }
       });
   }
 }

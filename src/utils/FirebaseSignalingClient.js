@@ -39,4 +39,12 @@ export default class FirebaseSignalingClient {
     this.localPeerName = localPeerName;
     this.remotePeerName = remotePeerName;
   }
+
+  async sendAnswer(sessionDescription) {
+    await this.taragetRef.set({
+      type: "answer",
+      sender: this.localPeerName,
+      sessionDescription,
+    });
+  }
 }
