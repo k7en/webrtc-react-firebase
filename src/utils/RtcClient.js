@@ -87,6 +87,7 @@ export default class RtcClient {
       this.remoteVideoRef.current.srcObject = remoteMediaStream;
       this.setRtcClient();
     };
+
     this.setRtcClient();
   }
 
@@ -97,7 +98,7 @@ export default class RtcClient {
       this.setOntrack();
       await this.setRemoteDescription(sessionDescription);
       const answer = await this.rtcPeerConnection.createAnswer();
-      this.rtcPeerConnection.setLocalDescription(answer);
+      await this.rtcPeerConnection.setLocalDescription(answer);
       await this.sendAnswer();
     } catch (e) {
       console.error(e);
@@ -129,10 +130,21 @@ export default class RtcClient {
   get localDescription() {
     return this.rtcPeerConnection.localDescription.toJSON();
   }
+
+  async addIceCandidate(candidate) {
+    try {
+      const iceCandidate = new RTCIceCandidate(candidate);
+      await this.rtcPeerConnection.addIceCandidate(iceCandidate);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   setOnicecandidateCallback() {
-    this.rtcPeerConnection.onicecandidate = ({ candidate }) => {
+    this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
       if (candidate) {
-        // TODO: remoteへcandidateを通知する。
+        console.log({ candidate });
+        await this.FirebaseSignalingClient.sendCandidate(candidate.toJSON());
       }
     };
   }
@@ -157,7 +169,8 @@ export default class RtcClient {
         if (data === null) {
           return;
         }
-        const { sender, sessionDescription, type } = data;
+
+        const { candidate, sender, sessionDescription, type } = data;
         switch (type) {
           case "offer":
             await this.answer(sender, sessionDescription);
@@ -165,7 +178,12 @@ export default class RtcClient {
           case "answer":
             await this.saveReceivedSessionDescription(sessionDescription);
             break;
+          case "candidate":
+            await this.addIceCandidate(candidate);
+            break;
+
           default:
+            this.setRtcClient();
             break;
         }
       });
