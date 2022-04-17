@@ -122,7 +122,7 @@ export default class RtcClient {
       this.localPeerName,
       this.remotePeerName
     );
-    
+
     await this.FirebaseSignalingClient.sendAnswer(this.localDescription);
   }
 
@@ -136,9 +136,18 @@ export default class RtcClient {
       }
     };
   }
-  startListening(localPeerName) {
+
+  async saveReceivedSessionDescription(sessionDescription) {
+    try {
+      await this.setRemoteDescription(sessionDescription);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async startListening(localPeerName) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
+    await this.FirebaseSignalingClient.remove(localPeerName);
     // ここでシグナリングサーバーをListenする。https://firebase.google.com/docs/database/web/read-and-write?hl=ja#web_value_events
     this.FirebaseSignalingClient.database
       .ref(localPeerName)
@@ -152,6 +161,9 @@ export default class RtcClient {
         switch (type) {
           case "offer":
             await this.answer(sender, sessionDescription);
+            break;
+          case "answer":
+            await this.saveReceivedSessionDescription(sessionDescription);
             break;
           default:
             break;

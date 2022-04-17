@@ -47,4 +47,12 @@ export default class FirebaseSignalingClient {
       sessionDescription,
     });
   }
+
+  async remove(path) {
+    try {
+      await this.database.ref(path).remove();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 }
