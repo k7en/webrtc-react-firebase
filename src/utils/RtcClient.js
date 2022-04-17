@@ -1,4 +1,4 @@
-import { ThirtyFpsSelect } from "@mui/icons-material";
+import { ConstructionOutlined, ThirtyFpsSelect } from "@mui/icons-material";
 import FirebaseSignalingClient from "./FirebaseSignalingClient";
 
 export default class RtcClient {
@@ -53,11 +53,32 @@ export default class RtcClient {
     return this.mediaStream.getVideoTracks()[0];
   }
 
-  connect(remotePeerName) {
-    this.remotePeerName = remotePeerName;
-    this.setOnicecandidateCallback();
-    this.setOntrack();
-    this.setRtcClient();
+  async offer() {
+    const sessionDescription = await this.createOfffer();
+    await this.setLocalDesription(sessionDescription);
+    await this.sendOffer();
+  }
+  async createOfffer() {
+    try {
+      return await this.rtcPeerConnection.createOffer();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async setLocalDesription(sessionDescription) {
+    try {
+      await this.rtcPeerConnection.setLocalDescription(sessionDescription);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async sendOffer() {
+    this.FirebaseSignalingClient.setPeerNames(
+      this.localPeerName,
+      this.remotePeerName
+    );
+    await this.localDescription;
   }
 
   setOntrack() {
@@ -68,6 +89,18 @@ export default class RtcClient {
       this.setRtcClient();
     };
     this.setRtcClient();
+  }
+
+  async connect(remotePeerName) {
+    this.remotePeerName = remotePeerName;
+    this.setOnicecandidateCallback();
+    this.setOntrack();
+    await this.offer();
+    this.setRtcClient();
+  }
+
+  get localDescription() {
+    return this.rtcPeerConnection.localDescription.toJSON();
   }
   setOnicecandidateCallback() {
     this.rtcPeerConnection.onicecandidate = ({ candidate }) => {
