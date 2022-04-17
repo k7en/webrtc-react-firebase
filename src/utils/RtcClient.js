@@ -78,7 +78,7 @@ export default class RtcClient {
       this.localPeerName,
       this.remotePeerName
     );
-    await this.localDescription;
+    await this.FirebaseSignalingClient.sendOffer(this.localDescription);
   }
 
   setOntrack() {
@@ -92,6 +92,7 @@ export default class RtcClient {
   }
 
   async connect(remotePeerName) {
+    console.log({ remotePeerName });
     this.remotePeerName = remotePeerName;
     this.setOnicecandidateCallback();
     this.setOntrack();
